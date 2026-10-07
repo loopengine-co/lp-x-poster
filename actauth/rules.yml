@@ -1,0 +1,40 @@
+# x_search/x_get_post are read-only (decision: allow) — no public
+# visibility, no metered X API cost to gate beyond what X's own rate
+# limits already bound.
+#
+# x_create_post/x_reply put this account's own words into a public,
+# permanent, attributed post — decision: ask by default, the one real
+# gate this ability has: a human (live, or durable via that agent's own
+# httpNotifier — see lp-task-scheduler if this agent is driven by a
+# scheduled "every morning, check X and maybe post" routine) should see
+# the actual drafted text before it goes out under this account's name.
+#
+# x_like/x_repost are decision: allow — visible as engagement, but
+# unlike create_post/reply, neither attributes any new words to this
+# account; the operator can tighten either to ask if that's not the
+# right call for a specific deployment (e.g. an account whose repost
+# feed is itself a curated, public-facing signal).
+- name: x-search-allowed
+  scope: "*/*"
+  tool: x_search
+  decision: allow
+- name: x-get-post-allowed
+  scope: "*/*"
+  tool: x_get_post
+  decision: allow
+- name: x-create-post-ask
+  scope: "*/*"
+  tool: x_create_post
+  decision: ask
+- name: x-reply-ask
+  scope: "*/*"
+  tool: x_reply
+  decision: ask
+- name: x-like-allowed
+  scope: "*/*"
+  tool: x_like
+  decision: allow
+- name: x-repost-allowed
+  scope: "*/*"
+  tool: x_repost
+  decision: allow
