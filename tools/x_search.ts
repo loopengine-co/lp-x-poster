@@ -1,15 +1,15 @@
 import { ApiResponseError, TwitterApi } from 'twitter-api-v2'
-import type { ToolDefinition } from 'loopengine'
+import type { AgentEnv, ToolDefinition } from 'loopengine'
 
 // Credential/error-handling helpers are duplicated verbatim across
 // every tool file in this ability — add-ability copies each tool file
 // standalone, flattened, with no shared-module support, so this is the
 // actual contract between them, not a shared function.
-function buildClient(action: string): TwitterApi {
-  const appKey = process.env.X_API_KEY
-  const appSecret = process.env.X_API_SECRET
-  const accessToken = process.env.X_ACCESS_TOKEN
-  const accessSecret = process.env.X_ACCESS_TOKEN_SECRET
+function buildClient(env: AgentEnv, action: string): TwitterApi {
+  const appKey = env.get('X_API_KEY')
+  const appSecret = env.get('X_API_SECRET')
+  const accessToken = env.get('X_ACCESS_TOKEN')
+  const accessSecret = env.get('X_ACCESS_TOKEN_SECRET')
   if (!appKey || !appSecret || !accessToken || !accessSecret) {
     throw new Error(`${action}: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, and X_ACCESS_TOKEN_SECRET must all be set`)
   }
@@ -50,12 +50,13 @@ export const xSearch: ToolDefinition = {
     },
     required: ['query'],
   },
-  execute: async (input) => {
+  execute: async (input, ctx) => {
+    const env = ctx.env
     const query = String(input.query ?? '')
     if (!query) throw new Error('x_search: query is required')
     const maxResults = typeof input.max_results === 'number' ? input.max_results : 10
 
-    const client = buildClient('x_search')
+    const client = buildClient(env, 'x_search')
     try {
       const result = await client.v2.search(query, {
         max_results: maxResults,

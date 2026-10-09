@@ -1,13 +1,13 @@
 import { ApiResponseError, TwitterApi } from 'twitter-api-v2'
-import type { ToolDefinition } from 'loopengine'
+import type { AgentEnv, ToolDefinition } from 'loopengine'
 
 // See x_search.ts's own comment on why this is duplicated, not shared,
 // across every tool file in this ability.
-function buildClient(action: string): TwitterApi {
-  const appKey = process.env.X_API_KEY
-  const appSecret = process.env.X_API_SECRET
-  const accessToken = process.env.X_ACCESS_TOKEN
-  const accessSecret = process.env.X_ACCESS_TOKEN_SECRET
+function buildClient(env: AgentEnv, action: string): TwitterApi {
+  const appKey = env.get('X_API_KEY')
+  const appSecret = env.get('X_API_SECRET')
+  const accessToken = env.get('X_ACCESS_TOKEN')
+  const accessSecret = env.get('X_ACCESS_TOKEN_SECRET')
   if (!appKey || !appSecret || !accessToken || !accessSecret) {
     throw new Error(`${action}: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, and X_ACCESS_TOKEN_SECRET must all be set`)
   }
@@ -42,13 +42,14 @@ export const xReply: ToolDefinition = {
     },
     required: ['tweet_id', 'text'],
   },
-  execute: async (input) => {
+  execute: async (input, ctx) => {
+    const env = ctx.env
     const tweetId = String(input.tweet_id ?? '')
     const text = String(input.text ?? '')
     if (!tweetId) throw new Error('x_reply: tweet_id is required')
     if (!text) throw new Error('x_reply: text is required')
 
-    const client = buildClient('x_reply')
+    const client = buildClient(env, 'x_reply')
     try {
       const result = await client.v2.reply(text, tweetId)
       return JSON.stringify({ id: result.data.id, text: result.data.text, in_reply_to: tweetId })

@@ -1,13 +1,13 @@
 import { ApiResponseError, TwitterApi } from 'twitter-api-v2'
-import type { ToolDefinition } from 'loopengine'
+import type { AgentEnv, ToolDefinition } from 'loopengine'
 
 // See x_search.ts's own comment on why this is duplicated, not shared,
 // across every tool file in this ability.
-function buildClient(action: string): TwitterApi {
-  const appKey = process.env.X_API_KEY
-  const appSecret = process.env.X_API_SECRET
-  const accessToken = process.env.X_ACCESS_TOKEN
-  const accessSecret = process.env.X_ACCESS_TOKEN_SECRET
+function buildClient(env: AgentEnv, action: string): TwitterApi {
+  const appKey = env.get('X_API_KEY')
+  const appSecret = env.get('X_API_SECRET')
+  const accessToken = env.get('X_ACCESS_TOKEN')
+  const accessSecret = env.get('X_ACCESS_TOKEN_SECRET')
   if (!appKey || !appSecret || !accessToken || !accessSecret) {
     throw new Error(`${action}: X_API_KEY, X_API_SECRET, X_ACCESS_TOKEN, and X_ACCESS_TOKEN_SECRET must all be set`)
   }
@@ -38,11 +38,12 @@ export const xCreatePost: ToolDefinition = {
     },
     required: ['text'],
   },
-  execute: async (input) => {
+  execute: async (input, ctx) => {
+    const env = ctx.env
     const text = String(input.text ?? '')
     if (!text) throw new Error('x_create_post: text is required')
 
-    const client = buildClient('x_create_post')
+    const client = buildClient(env, 'x_create_post')
     try {
       const result = await client.v2.tweet(text)
       return JSON.stringify({ id: result.data.id, text: result.data.text })
