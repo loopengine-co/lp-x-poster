@@ -26,11 +26,10 @@ calls a real person running the account would make.
 - **Skill** — `x-posting`: the real workflow (search → read → judge →
   draft → post), what "ask human approval" actually resolves to for
   `x_create_post`/`x_reply` (a live synchronous approval, or — if this
-  routine is driven by
-  [lp-task-scheduler](https://github.com/loopengine-co/lp-task-scheduler)'s
-  own recurring trigger — a real durable approval, *if* this agent has
-  its own `httpNotifier` configured; an auto-deny every single time
-  otherwise), and why engaging with every candidate found isn't the
+  routine runs as a scheduled task — loopengine's built-in
+  `system_schedule_task` or the console's Schedules tab — a real durable
+  approval, *if* the agent's Permissions tab sends approval requests
+  somewhere; an auto-deny every single time otherwise), and why engaging with every candidate found isn't the
   goal.
 - **actauth rules** — `x_search`/`x_get_post`/`x_like`/`x_repost`:
   `decision: allow` (no new content attributed to this account's own

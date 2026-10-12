@@ -51,17 +51,19 @@ run:
 
 - **A live conversation** — a normal synchronous approval, answered
   right there, same as any other `ask`-gated tool call.
-- **Driven by `lp-task-scheduler`'s own "every morning" trigger** — no
+- **A scheduled task** ("every morning", set with `system_schedule_task`
+  or the console's Schedules tab) — no
   human is live in that conversation at all. Whether this still pauses
   for a real human decision depends entirely on whether *this agent*
-  has its own `httpNotifier` configured (a webhook, Slack, ...):
+  sends approval requests somewhere (its Permissions tab: a webhook,
+  Slack, ...):
   configured, and the draft genuinely waits — possibly hours, until
   someone reviews it — for a real approve/deny; not configured, and the
   draft gets auto-denied immediately, every single morning, with
   nothing ever actually posted. If a scheduled "search and maybe post"
   routine seems to never post anything, that's the first thing to
-  check — not a bug in this ability, a missing `httpNotifier` on the
-  agent being scheduled.
+  check — not a bug in this ability; the scheduled task's history says
+  the call was denied because nowhere is set to send approval requests.
 
 ## Judgment, not volume
 
